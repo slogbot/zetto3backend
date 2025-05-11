@@ -1,36 +1,72 @@
 const mongoose = require('mongoose');
 
 const cardSchema = new mongoose.Schema({
-  name: {
-    type: String,
-    required: true,
-  },
-  owner: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User', // Assuming cards are tied to users
-    required: false,
-  },
+  name: { type: String, required: true },
+  owner: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+
   type: {
     type: String,
-    enum: ['minion', 'spell', 'structure'],
+    enum: ['minion', 'spell', 'structure', 'home'],
     required: true,
   },
+
   subType: {
     type: String,
     enum: [
-      'minionbasic',        // if type is 'minion'
-      'structurebasic',     // if type is 'structure'
-      'field',              // if type is 'spell'
-      'direct to hand',     // if type is 'spell'
-      'direct to cell',     // if type is 'spell'
-      'direct to 2 cells'   // if type is 'spell'
+      'minionbasic',
+      'structurebasic',
+      'field',
+      'direct to hand',
+      'direct to cell',
+      'direct to 2 cells',
+      'homebasic',
     ],
     required: true,
+  },
+
+  atk: {
+    type: Number,
+    required: function () {
+      return this.type === 'minion';
+    }
+  },
+  def: {
+    type: Number,
+    required: function () {
+      return this.type === 'minion';
+    }
+  },
+  mov: {
+    type: Number,
+    required: function () {
+      return this.type === 'minion';
+    }
+  },
+  range: {
+    type: Number,
+    required: function () {
+      return this.type === 'minion';
+    }
+  },
+  hp: {
+    type: Number,
+    required: function () {
+      return this.type === 'minion';
+    }
+  },
+
+sectorValue: {
+  type: Number,
+  required: function () {
+    return this.type === 'minion' || this.type === 'structure';
   }
-}, {
-  timestamps: true
-});
+},
+
+  // ✅ New optional flags for gameplay mechanics
+  canPlaceMinion: { type: Boolean, default: false },
+  canPlaceStructure: { type: Boolean, default: false }
+
+}, { timestamps: true });
 
 const Card = mongoose.model('Card', cardSchema);
-
 module.exports = Card;

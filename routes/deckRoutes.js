@@ -5,5 +5,6 @@ const authenticateToken = require('../middleware/authMiddleware');
 
 // Build a new deck
 router.post('/build', authenticateToken, deckController.buildDeck);
+router.post('/select-home', authenticateToken, deckController.selectRandomHomeCard);
 
 module.exports = router;

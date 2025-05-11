@@ -10,16 +10,38 @@ exports.openPack = async (req, res) => {
     const baseCards = await Card.aggregate([{ $sample: { size: 10 } }]);
 
     // 2. Duplicate them as new cards owned by the user
-    const newCards = await Promise.all(baseCards.map(async (card) => {
-      const newCard = new Card({
-        name: card.name,
-        type: card.type,
-        subType: card.subType,
-        owner: userId
-      });
-      await newCard.save();
-      return newCard;
-    }));
+    const newCards = await Promise.all(
+      baseCards.map(async (card) => {
+        // ✅ Safely determine sectorValue only for minions and structures
+        const sectorValue =
+          (card.type === 'minion' || card.type === 'structure')
+            ? (card.sectorValue ?? 1)
+            : undefined;
+
+        const newCard = new Card({
+          name: card.name,
+          type: card.type,
+          subType: card.subType,
+          owner: userId,
+
+          ...(card.type === 'minion' && {
+            atk: card.atk ?? 1,
+            def: card.def ?? 1,
+            mov: card.mov ?? 1,
+            range: card.range ?? 1,
+            hp: card.hp ?? 1,
+          }),
+
+          canPlaceMinion: card.canPlaceMinion ?? false,
+          canPlaceStructure: card.canPlaceStructure ?? false,
+
+          ...(sectorValue !== undefined && { sectorValue }) // ✅ Only include if valid
+        });
+
+        await newCard.save();
+        return newCard;
+      })
+    );
 
     // 3. Add new card IDs to user's ownedCards
     const user = await User.findById(userId);

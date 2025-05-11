@@ -22,10 +22,13 @@ const userSchema = new mongoose.Schema({
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Card'
     }
-  ]
+  ],
+  selectedHomeCard: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Card',
+    default: null
+  }
 }, { timestamps: true });
 
-// (Optional: You can later add validation to limit deck length)
 const User = mongoose.model('User', userSchema);
-
 module.exports = User;
