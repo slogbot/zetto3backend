@@ -5,7 +5,8 @@ const playerSchema = new mongoose.Schema({
     user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
     deck: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Card' }],
     hand: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Card' }],
-    homeCard: { type: mongoose.Schema.Types.ObjectId, ref: 'Card', default: null } // ✅ New
+    homeCard: { type: mongoose.Schema.Types.ObjectId, ref: 'Card', default: null },
+    mana: { type: Number, default: 10 } // ✅ new
 
   
   });

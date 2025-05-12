@@ -1,5 +1,4 @@
 // services/sectorService.js
-
 function getSectorsFromBoard(grid) {
   const sectors = {};
 
@@ -8,11 +7,7 @@ function getSectorsFromBoard(grid) {
       const sectorX = Math.floor(x / 3);
       const sectorY = Math.floor(y / 3);
       const key = `${sectorX}-${sectorY}`;
-
-      if (!sectors[key]) {
-        sectors[key] = [];
-      }
-
+      if (!sectors[key]) sectors[key] = [];
       sectors[key].push(grid[y][x]);
     }
   }
@@ -26,32 +21,38 @@ function calculateSectorControl(game) {
   const controlMap = {};
 
   for (const [sectorKey, cells] of Object.entries(sectors)) {
-    const valueMap = new Map();
+    const tally = new Map();
 
     for (const cell of cells) {
       const occ = cell.occupant;
-      if (occ && occ.ownerId && occ.sectorValue) {
-        const ownerId = occ.ownerId.toString();
-        const current = valueMap.get(ownerId) ?? 0;
-        valueMap.set(ownerId, current + occ.sectorValue);
-      }
+      if (!occ || !occ.ownerId || typeof occ.sectorValue !== 'number') continue;
+
+      const ownerId = occ.ownerId.toString();
+      const prev = tally.get(ownerId) || 0;
+      tally.set(ownerId, prev + occ.sectorValue);
+    }
+
+    if (tally.size === 0) {
+      controlMap[sectorKey] = null;
+      continue;
     }
 
     let highest = -Infinity;
-    let leader = null;
-    let tie = false;
+    let leaders = [];
 
-    for (const [ownerId, total] of valueMap.entries()) {
-      if (total > highest) {
-        highest = total;
-        leader = ownerId;
-        tie = false;
-      } else if (total === highest) {
-        tie = true;
+    for (const [ownerId, value] of tally.entries()) {
+      if (value > highest) {
+        highest = value;
+        leaders = [ownerId];
+      } else if (value === highest) {
+        leaders.push(ownerId);
       }
     }
 
-    controlMap[sectorKey] = tie ? null : leader;
+    controlMap[sectorKey] = leaders.length === 1 ? leaders[0] : null;
+
+    // 🪵 Debug logging
+    console.log(`🧠 Sector ${sectorKey}:`, Object.fromEntries(tally), '→ Control:', controlMap[sectorKey] ?? 'DRAW');
   }
 
   return controlMap;

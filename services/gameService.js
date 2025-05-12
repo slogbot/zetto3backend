@@ -24,7 +24,8 @@ const sectorControl = sectorService.calculateSectorControl(game);
     deck: p.deck,
     handSize: p.hand.length,
     deckSize: p.deck.length,
-    homeCard: p.homeCard ?? null
+    homeCard: p.homeCard ?? null,
+    mana: p.mana
   })),
   activePlayer: game.activePlayer?.toString() ?? null,
     sectors: sectorControl // ✅ renamed to sectors for frontend clarity

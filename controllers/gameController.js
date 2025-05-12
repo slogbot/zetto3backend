@@ -8,6 +8,7 @@ const movementValidator = require('../utils/validators/movementValidator');
 const { resolveCombat } = require('../utils/validators/combatValidator');
 const { validateMinionPlacement } = require('../utils/validators/minionPlacementValidator');
 const { validateStructurePlacement } = require('../utils/validators/structurePlacementValidator');
+const manaService = require('../services/manaService'); // ⬅️ Add this
 
 
 exports.createGame = async (req, res) => {
@@ -78,7 +79,9 @@ exports.joinGame = async (req, res) => {
     game.players.push({
       user: userId,
       deck: [...userDeck],
-      homeCard: homeCardData ? homeCardData._id : null
+      homeCard: homeCardData ? homeCardData._id : null,
+        mana: 10 // ✅ give starting mana
+
     });
 
 // ✅ Set the first player as active if not already set
@@ -160,6 +163,8 @@ exports.swapTurn = async (req, res) => {
     if (!nextPlayer) return res.status(400).json({ message: 'No other player to swap to' });
 
     game.activePlayer = nextPlayer.user;
+    manaService.applyManaGains(game); // ⬅️ Just before game.save()
+
     await game.save();
 
     await emitGameState(gameId);
@@ -311,8 +316,6 @@ exports.moveMinion = async (req, res) => {
     res.status(500).json({ message: 'Internal server error' });
   }
 };
-
-
 exports.attackMinion = async (req, res) => {
   try {
     const gameId = req.params.id;
