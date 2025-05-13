@@ -9,9 +9,6 @@ function isCellEmpty(cell) {
   // ✅ Match movementValidator logic exactly
   return !cell?.occupant?.cardId;
 }
-
-
-
 function isValidSpawner(occupant, userId) {
   return (
     occupant &&
@@ -19,7 +16,6 @@ function isValidSpawner(occupant, userId) {
     occupant.canPlaceMinion === true
   );
 }
-
 function hasAdjacentSpawner(board, x, y, userId) {
   const directions = [
     { dx: 0, dy: -1 },
@@ -43,7 +39,6 @@ function hasAdjacentSpawner(board, x, y, userId) {
 
   return false;
 }
-
 function validateMinionPlacement(game, x, y, userId) {
   console.log(`🧪 Validating placement at (${x}, ${y}) for user ${userId}`);
   const board = game.board.grid;
