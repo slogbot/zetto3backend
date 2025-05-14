@@ -9,6 +9,8 @@ const { resolveCombat } = require('../utils/validators/combatValidator');
 const { validateMinionPlacement } = require('../utils/validators/minionPlacementValidator');
 const { validateStructurePlacement } = require('../utils/validators/structurePlacementValidator');
 const manaService = require('../services/manaService'); // ⬅️ Add this
+const { applyEffectById } = require('../services/effectService');
+const Card = require('../models/Card'); // ✅ This is likely missing
 
 
 exports.createGame = async (req, res) => {
@@ -142,15 +144,18 @@ exports.nextPhase = async (req, res) => {
     const nextPhase = PHASES[(currentIndex + 1) % PHASES.length];
 
     game.phase = nextPhase;
-    await game.save();
+    game.phaseCount++; // ✅ Increment phase count
 
+    await game.save();
     await emitGameState(gameId);
     res.status(200).json({ message: `Phase changed to ${nextPhase}` });
+
   } catch (err) {
     console.error('❌ Failed to change phase:', err);
     res.status(500).json({ message: 'Internal server error' });
   }
 };
+
 exports.swapTurn = async (req, res) => {
   try {
     const gameId = req.params.id;
@@ -365,6 +370,47 @@ res.status(200).json({ message: 'Combat resolved', result });
 
   } catch (err) {
     console.error('❌ Combat error:', err);
+  }
+};
+
+exports.applySpellToOccupant = async (req, res) => {
+  try {
+    const { id: gameId } = req.params;
+    const { cardId, cell } = req.body;
+    const userId = req.user.userId;
+
+    const game = await Game.findById(gameId);
+    if (!game) return res.status(404).json({ message: 'Game not found' });
+
+    const player = game.players.find(p => p.user.toString() === userId);
+    if (!player) return res.status(403).json({ message: 'You are not part of this game' });
+
+    const cardIndex = player.hand.findIndex(c => c.toString() === cardId);
+    if (cardIndex === -1) return res.status(400).json({ message: 'Card not in hand' });
+
+    const cardData = await Card.findById(cardId);
+    if (!cardData || !cardData.effect) return res.status(400).json({ message: 'Card has no effect defined' });
+
+    const targetCell = game.board.grid[cell.y]?.[cell.x];
+    if (!targetCell || !targetCell.occupant) {
+      return res.status(400).json({ message: 'No occupant in target cell' });
+    }
+
+    const occupant = targetCell.occupant;
+
+    // ✅ Remove spell from hand
+    player.hand.splice(cardIndex, 1);
+
+    // ✅ Apply effect
+    applyEffectById(cardData.effect, occupant, game, { sourceCardId: cardId });
+
+    await game.save();
+    await emitGameState(gameId);
+
+    res.status(200).json({ message: 'Effect applied successfully' });
+  } catch (err) {
+    console.error('❌ Failed to apply spell effect:', err);
+    res.status(500).json({ message: 'Internal server error' });
   }
 };
 

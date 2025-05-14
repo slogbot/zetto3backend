@@ -19,7 +19,8 @@ const playerSchema = new mongoose.Schema({
     players: { type: [playerSchema], default: [] },
     board: boardSchema,
     activePlayer: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
-    phase: { type: String, enum: ['placement', 'movement', 'combat'], default: 'placement' }, // 🆕
+    phase: { type: String, enum: ['placement', 'movement', 'combat'], default: 'placement' },
+    phaseCount: { type: Number, default: 0 },
     createdAt: { type: Date, default: Date.now }
   });
 

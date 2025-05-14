@@ -17,6 +17,7 @@ const sectorControl = sectorService.calculateSectorControl(game);
   const payload = {
   board: game.board,
   phase: game.phase,
+  phaseCount: game.phaseCount,
   players: game.players.map(p => ({
     userId: p.user._id.toString(),
     username: p.user.username || 'Unknown',

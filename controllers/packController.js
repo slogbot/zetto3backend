@@ -24,6 +24,11 @@ exports.openPack = async (req, res) => {
           subType: card.subType,
           owner: userId,
 
+   // ✅ Carry over effect field for spells
+          ...(card.type === 'spell' && {
+            effect: card.effect ?? null
+          }),
+
           ...(card.type === 'minion' && {
             atk: card.atk ?? 1,
             def: card.def ?? 1,

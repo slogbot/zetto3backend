@@ -20,10 +20,11 @@ const cardSchema = new mongoose.Schema({
       'direct to cell',
       'direct to 2 cells',
       'homebasic',
+      'direct to occupant', 
     ],
     required: true,
   },
-
+effect: { type: String }, // ✅ NEW — e.g. 'emptyEffect'
   atk: {
     type: Number,
     required: function () {

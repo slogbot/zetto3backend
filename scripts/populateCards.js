@@ -13,11 +13,7 @@ async function populateCards() {
   try {
     const cards = [
       // Spells
-      { name: 'Mystic Field', type: 'spell', subType: 'field' },
-      { name: 'Hand Siphon', type: 'spell', subType: 'direct to hand' },
-      { name: 'Cell Strike', type: 'spell', subType: 'direct to cell' },
-      { name: 'Dual Blast', type: 'spell', subType: 'direct to 2 cells' },
-
+     { name: 'Empty Effect', type: 'spell', subType: 'direct to occupant', effect: 'emptyEffect' },
       // Minions with canPlayStructure true
       { name: 'Goblin Scout', type: 'minion', subType: 'minionbasic', atk: 2, def: 1, mov: 3, range: 1, hp: 1, canPlaceStructure: true, sectorValue: 3 },
       { name: 'Stone Golem', type: 'minion', subType: 'minionbasic', atk: 1, def: 4, mov: 1, range: 1, hp: 5, canPlaceStructure: true, sectorValue: 3 },

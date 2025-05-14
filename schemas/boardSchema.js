@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const cellSchema = new mongoose.Schema({
   x: { type: Number, required: true },
   y: { type: Number, required: true },
-  activeEffects: { type: [String], default: [] },
+  
   occupant: {
     cardId: { type: mongoose.Schema.Types.ObjectId, ref: 'Card' },
     name: { type: String },
@@ -17,6 +17,17 @@ const cellSchema = new mongoose.Schema({
     hp: { type: Number },
     sectorValue: { type: Number, default: 1 },
 
+  // ✅ Effect system
+    activeEffects: {
+      type: [
+        {
+          name: { type: String, required: true },
+          appliedAt: { type: Number, required: true }, // phaseCount when applied
+          duration: { type: Number, required: true }   // number of phases to last
+        }
+      ],
+      default: []
+    },
 
     // ✅ New placement logic flags
     canPlaceMinion: { type: Boolean, default: false },

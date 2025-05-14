@@ -14,5 +14,6 @@ router.post('/:id/place-structure', authenticateToken, gameController.placeStruc
 router.post('/:id/move-minion', authenticateToken, gameController.moveMinion);
 router.post('/:id/attack-minion', authenticateToken, gameController.attackMinion);
 router.post('/:id/swap-turn', authenticateToken, gameController.swapTurn);
+router.post('/:id/apply-spell-to-occupant', authenticateToken, gameController.applySpellToOccupant);
 
 module.exports = router;
