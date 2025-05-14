@@ -9,7 +9,7 @@ const { resolveCombat } = require('../utils/validators/combatValidator');
 const { validateMinionPlacement } = require('../utils/validators/minionPlacementValidator');
 const { validateStructurePlacement } = require('../utils/validators/structurePlacementValidator');
 const manaService = require('../services/manaService'); // ⬅️ Add this
-const { applyEffectById } = require('../services/effectService');
+const effectService = require('../services/effectService');
 const Card = require('../models/Card'); // ✅ This is likely missing
 
 
@@ -144,7 +144,8 @@ exports.nextPhase = async (req, res) => {
     const nextPhase = PHASES[(currentIndex + 1) % PHASES.length];
 
     game.phase = nextPhase;
-    game.phaseCount++; // ✅ Increment phase count
+    game.phaseCount++;
+    effectService.removeExpiredEffects(game);
 
     await game.save();
     await emitGameState(gameId);
@@ -402,7 +403,7 @@ exports.applySpellToOccupant = async (req, res) => {
     player.hand.splice(cardIndex, 1);
 
     // ✅ Apply effect
-    applyEffectById(cardData.effect, occupant, game, { sourceCardId: cardId });
+effectService.applyEffectById(cardData.effect, occupant, game, { sourceCardId: cardId });
 
     await game.save();
     await emitGameState(gameId);

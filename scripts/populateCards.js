@@ -14,6 +14,8 @@ async function populateCards() {
     const cards = [
       // Spells
      { name: 'Empty Effect', type: 'spell', subType: 'direct to occupant', effect: 'emptyEffect' },
+          { name: 'Dark Pendant', type: 'spell', subType: 'direct to occupant', effect: 'boostAtk3' },
+
       // Minions with canPlayStructure true
       { name: 'Goblin Scout', type: 'minion', subType: 'minionbasic', atk: 2, def: 1, mov: 3, range: 1, hp: 1, canPlaceStructure: true, sectorValue: 3 },
       { name: 'Stone Golem', type: 'minion', subType: 'minionbasic', atk: 1, def: 4, mov: 1, range: 1, hp: 5, canPlaceStructure: true, sectorValue: 3 },
