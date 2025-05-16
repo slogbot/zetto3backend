@@ -266,17 +266,18 @@ if (!validation.valid) {
 player.hand.splice(cardIndex, 1);
 
 
-    boardService.placeMinionOnBoard(game, cell.x, cell.y, {
-      cardId: cardData._id,
-      name: cardData.name,
-      type: cardData.type,
-      subType: cardData.subType,
-      ownerId: userId,
-      canPlaceMinion: cardData.canPlaceMinion,
-      canPlaceSpawner: cardData.canPlaceSpawner,
-      sectorValue: cardData.sectorValue // ✅ Add this line
+  boardService.placeStructureOnBoard(game, cell.x, cell.y, {
+  cardId: cardData._id,
+  name: cardData.name,
+  type: cardData.type,
+  subType: cardData.subType,
+  ownerId: userId,
+  canPlaceMinion: cardData.canPlaceMinion,
+  canPlaceSpawner: cardData.canPlaceSpawner,
+  sectorValue: cardData.sectorValue,
+  totemAura: cardData.totemAura ?? undefined
+});
 
-    });
 
     await game.save();
     await emitGameState(gameId);

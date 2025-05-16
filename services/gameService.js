@@ -1,6 +1,7 @@
 const Game = require('../models/Game');
 const { getIO } = require('../sockets');
 const sectorService = require('./sectorService'); // adjust path if needed
+const totemService = require('./totemService'); // adjust path if needed
 
 async function emitGameState(gameId) {
   const game = await Game.findById(gameId)
@@ -9,8 +10,11 @@ async function emitGameState(gameId) {
     .populate('players.deck');
 
   if (!game) throw new Error('Game not found');
+    await totemService.applyTotemAuras(game); // ✅ NEW: inject auras before state calc
+
   // ✅ Calculate sector control before constructing payload
 const sectorControl = sectorService.calculateSectorControl(game);
+
   // 🔇 Remove heavy log
   console.log(`📤 Emitting game state to game-${gameId}`);
 

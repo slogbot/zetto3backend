@@ -108,8 +108,10 @@ function generateEmptyBoard(width = 9, height = 9) {
       subType: structureData.subType,
       ownerId: structureData.ownerId,
       canPlaceMinion: structureData.canPlaceMinion ?? false,
-      canPlaceSpawner: structureData.canPlaceSpawner ?? false,
-      sectorValue: structureData.sectorValue ?? 1
+      canPlaceStructure: structureData.canPlaceSpawner ?? false,
+      sectorValue: structureData.sectorValue ?? 1,
+      totemAura: structureData.totemAura ?? undefined
+
 
     };
   

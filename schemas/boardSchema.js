@@ -22,8 +22,8 @@ const cellSchema = new mongoose.Schema({
       type: [
         {
           name: { type: String, required: true },
-          appliedAt: { type: Number, required: true }, // phaseCount when applied
-          duration: { type: Number, required: true },   // number of phases to last
+          appliedAt: { type: Number, required: true },
+          duration: { type: Number, required: true },
           source: {
             type: {
               type: String,
@@ -38,6 +38,12 @@ const cellSchema = new mongoose.Schema({
         }
       ],
       default: []
+    },
+
+    // ✅ Optional totem aura info
+    totemAura: {
+      effectId: { type: String },
+      range: { type: Number }
     },
 
     // ✅ New placement logic flags

@@ -28,6 +28,9 @@ exports.openPack = async (req, res) => {
           ...(card.type === 'spell' && {
             effect: card.effect ?? null
           }),
+            ...(card.type === 'structure' && {
+    totemAura: card.totemAura ?? undefined
+  }),
 
           ...(card.type === 'minion' && {
             atk: card.atk ?? 1,

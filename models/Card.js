@@ -20,11 +20,13 @@ const cardSchema = new mongoose.Schema({
       'direct to cell',
       'direct to 2 cells',
       'homebasic',
-      'direct to occupant', 
+      'direct to occupant',
     ],
     required: true,
   },
-effect: { type: String }, // ✅ NEW — e.g. 'emptyEffect'
+
+  effect: { type: String }, // e.g. 'emptyEffect'
+
   atk: {
     type: Number,
     required: function () {
@@ -56,16 +58,22 @@ effect: { type: String }, // ✅ NEW — e.g. 'emptyEffect'
     }
   },
 
-sectorValue: {
-  type: Number,
-  required: function () {
-    return this.type === 'minion' || this.type === 'structure';
-  }
-},
+  sectorValue: {
+    type: Number,
+    required: function () {
+      return this.type === 'minion' || this.type === 'structure';
+    }
+  },
 
   // ✅ New optional flags for gameplay mechanics
   canPlaceMinion: { type: Boolean, default: false },
-  canPlaceStructure: { type: Boolean, default: false }
+  canPlaceStructure: { type: Boolean, default: false },
+
+  // ✅ Optional totem aura data (only for totem structures)
+  totemAura: {
+    effectId: { type: String },
+    range: { type: Number }
+  }
 
 }, { timestamps: true });
 

@@ -24,6 +24,23 @@ async function populateCards() {
       // Structures
       { name: 'Watch Tower', type: 'structure', subType: 'structurebasic', sectorValue: 3 },
       { name: 'Barricade', type: 'structure', subType: 'structurebasic',sectorValue: 3 },
+  // ✅ Test totem structure with aura
+  {
+    name: 'Test Totem', type: 'structure', subType: 'structurebasic', sectorValue: 3,
+    totemAura: {
+      effectId: 'emptyEffect',
+      range: 2
+    }
+  },{
+  name: 'Rage Totem',
+  type: 'structure',
+  subType: 'structurebasic',
+  sectorValue: 3,
+  totemAura: {
+    effectId: 'boostAtk3',
+    range: 2
+  }
+},
 
       // ✅ Home card with canPlaceMinion true
       { name: 'Castle Core', type: 'home', subType: 'homebasic', canPlaceMinion: true }
