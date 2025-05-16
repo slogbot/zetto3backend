@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const cellSchema = new mongoose.Schema({
   x: { type: Number, required: true },
   y: { type: Number, required: true },
-  
+
   occupant: {
     cardId: { type: mongoose.Schema.Types.ObjectId, ref: 'Card' },
     name: { type: String },
@@ -17,13 +17,24 @@ const cellSchema = new mongoose.Schema({
     hp: { type: Number },
     sectorValue: { type: Number, default: 1 },
 
-  // ✅ Effect system
+    // ✅ Effect system with source tracking
     activeEffects: {
       type: [
         {
           name: { type: String, required: true },
           appliedAt: { type: Number, required: true }, // phaseCount when applied
-          duration: { type: Number, required: true }   // number of phases to last
+          duration: { type: Number, required: true },   // number of phases to last
+          source: {
+            type: {
+              type: String,
+              enum: ['spell', 'totem'],
+              required: true
+            },
+            id: {
+              type: mongoose.Schema.Types.ObjectId,
+              required: true
+            }
+          }
         }
       ],
       default: []

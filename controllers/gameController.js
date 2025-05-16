@@ -403,7 +403,10 @@ exports.applySpellToOccupant = async (req, res) => {
     player.hand.splice(cardIndex, 1);
 
     // ✅ Apply effect
-effectService.applyEffectById(cardData.effect, occupant, game, { sourceCardId: cardId });
+effectService.applyEffectById(cardData.effect, occupant, game, {
+  type: 'spell',
+  id: cardId
+});
 
     await game.save();
     await emitGameState(gameId);

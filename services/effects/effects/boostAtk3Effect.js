@@ -9,13 +9,18 @@ module.exports = {
     occupant.activeEffects.push({
       name: 'boostAtk3',
       duration: 3,
-      appliedAt: game.phaseCount
+      appliedAt: game.phaseCount,
+      source // ✅ Track source (spell or totem)
     });
   },
 
-  remove: (occupant, game) => {
+  remove: (occupant, game, source) => {
     console.log(`🧹 Removing boostAtk3 from ${occupant.name}`);
     occupant.atk -= 3;
-    occupant.activeEffects = occupant.activeEffects.filter(e => e.name !== 'boostAtk3');
+    occupant.activeEffects = occupant.activeEffects.filter(e =>
+      !(e.name === 'boostAtk3' &&
+        e.source.type === source.type &&
+        e.source.id.toString() === source.id.toString())
+    );
   }
 };

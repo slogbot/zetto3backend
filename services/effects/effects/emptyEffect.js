@@ -8,12 +8,17 @@ module.exports = {
     occupant.activeEffects.push({
       name: 'emptyEffect',
       duration: 3,
-      appliedAt: game.phaseCount
+      appliedAt: game.phaseCount,
+      source // ✅ Track source
     });
   },
 
-  remove: (occupant, game) => {
+  remove: (occupant, game, source) => {
     console.log(`🧹 Removing emptyEffect from ${occupant.name}`);
-    occupant.activeEffects = occupant.activeEffects.filter(e => e.name !== 'emptyEffect');
+    occupant.activeEffects = occupant.activeEffects.filter(e =>
+      !(e.name === 'emptyEffect' &&
+        e.source.type === source.type &&
+        e.source.id.toString() === source.id.toString())
+    );
   }
 };

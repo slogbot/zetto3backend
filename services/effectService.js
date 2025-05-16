@@ -8,14 +8,20 @@ function applyEffectById(effectId, occupant, game, source) {
   }
 
   occupant.activeEffects ??= [];
-  const alreadyExists = occupant.activeEffects.some(e => e.name === effect.id);
-  if (alreadyExists) {
-    console.log(`🛑 Effect ${effect.id} already present on occupant`);
+
+  const sourceKey = `${source.type}:${source.id}`;
+  const alreadyExistsFromSameSource = occupant.activeEffects.some(e =>
+    e.name === effect.id && `${e.source.type}:${e.source.id}` === sourceKey
+  );
+
+  if (alreadyExistsFromSameSource) {
+    console.log(`🛑 Effect ${effect.id} already present on occupant from this source`);
     return;
   }
 
   effect.apply(occupant, game, source);
 }
+
 function removeExpiredEffects(game) {
   const { grid } = game.board;
   const { phaseCount } = game;
@@ -32,18 +38,17 @@ function removeExpiredEffects(game) {
           const handler = effects[effect.name];
           if (handler?.remove) {
             console.log(`🧹 Removing expired effect '${effect.name}' from ${occupant.name}`);
-            handler.remove(occupant, game);
+            handler.remove(occupant, game, effect.source); // ✅ pass source
           } else {
             console.warn(`⚠️ No removal handler for effect: ${effect.name}`);
           }
         }
 
-        return !isExpired; // Keep only non-expired effects
+        return !isExpired;
       });
     }
   }
 }
-
 
 module.exports = {
   applyEffectById,
