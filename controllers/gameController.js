@@ -418,7 +418,54 @@ effectService.applyEffectById(cardData.effect, occupant, game, {
     res.status(500).json({ message: 'Internal server error' });
   }
 };
+exports.applyGlobalToOccupant = async (req, res) => {
+  try {
+    const { id: gameId } = req.params;
+    const { cardId, cell } = req.body;
+    const userId = req.user.userId;
 
+    const game = await Game.findById(gameId);
+    if (!game) return res.status(404).json({ message: 'Game not found' });
+
+    const player = game.players.find(p => p.user.toString() === userId);
+    if (!player) return res.status(403).json({ message: 'Not your game' });
+
+    const cardIndex = player.hand.findIndex(c => c.toString() === cardId);
+    if (cardIndex === -1) return res.status(400).json({ message: 'Card not in hand' });
+
+    const cardData = await Card.findById(cardId);
+    if (!cardData || cardData.subType !== 'global effect' || !cardData.effect) {
+      return res.status(400).json({ message: 'Invalid global effect spell' });
+    }
+
+    const targetCell = game.board.grid[cell.y]?.[cell.x];
+    if (!targetCell || !targetCell.occupant) {
+      return res.status(400).json({ message: 'No occupant in target cell' });
+    }
+
+    const targetOwnerId = targetCell.occupant.ownerId.toString();
+    const targetPlayer = game.players.find(p => p.user.toString() === targetOwnerId);
+    if (!targetPlayer) {
+      return res.status(400).json({ message: 'Occupant owner not found' });
+    }
+
+    // Remove card from hand
+    player.hand.splice(cardIndex, 1);
+
+    // Apply effect
+    effectService.applyGlobalEffectToPlayer(cardData.effect, targetPlayer, game, {
+      type: 'spell',
+      id: cardId
+    });
+
+    await game.save();
+    await emitGameState(gameId);
+    res.status(200).json({ message: 'Global spell effect applied to occupant owner' });
+  } catch (err) {
+    console.error('❌ Failed to apply global-to-occupant effect:', err);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
 
 
 

@@ -49,8 +49,19 @@ function removeExpiredEffects(game) {
     }
   }
 }
+function applyGlobalEffectToPlayer(effectId, player, game, source) {
+  const effect = effects[effectId];
+  if (!effect || typeof effect.applyToPlayer !== 'function') {
+    console.warn(`⚠️ No global effect handler found for ID: ${effectId}`);
+    return;
+  }
+
+  effect.applyToPlayer(player, game, source);
+}
 
 module.exports = {
   applyEffectById,
-  removeExpiredEffects
+  removeExpiredEffects,
+    applyGlobalEffectToPlayer // ✅ Add this
+
 };

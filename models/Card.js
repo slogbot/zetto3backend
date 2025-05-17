@@ -21,6 +21,8 @@ const cardSchema = new mongoose.Schema({
       'direct to 2 cells',
       'homebasic',
       'direct to occupant',
+      'global effect' // ✅ NEW
+
     ],
     required: true,
   },
