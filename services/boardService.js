@@ -117,10 +117,39 @@ function generateEmptyBoard(width = 9, height = 9) {
   
     console.log(`[BoardService] 🏗️ Structure placed at (${x},${y})`);
   }
-  
+
+function placeStructure3XOnBoard(game, cells, structureData) {
+  if (!Array.isArray(cells) || cells.length !== 3) {
+    throw new Error('[BoardService] Must provide exactly 3 cells for structure3X placement');
+  }
+
+  cells.forEach(({ x, y }) => {
+    const cell = game.board.grid[y]?.[x];
+    if (!cell) throw new Error(`[BoardService] Cell not found at (${x},${y})`);
+    if (cell.occupant && cell.occupant.cardId) {
+      throw new Error(`[BoardService] Cell already occupied at (${x},${y})`);
+    }
+
+    cell.occupant = {
+      cardId: structureData.cardId,
+      name: structureData.name,
+      type: structureData.type,
+      subType: structureData.subType,
+      ownerId: structureData.ownerId,
+      canPlaceMinion: structureData.canPlaceMinion ?? false,
+      canPlaceStructure: structureData.canPlaceSpawner ?? false,
+      sectorValue: structureData.sectorValue ?? 1,
+      totemAura: structureData.totemAura ?? undefined
+    };
+
+    console.log(`[BoardService] 🧱 Structure3X block placed at (${x},${y})`);
+  });
+}
   module.exports = {
     generateEmptyBoard,
     placeHomeCardOnBoard,
     placeMinionOnBoard,
-    placeStructureOnBoard
+    placeStructureOnBoard,
+    placeStructure3XOnBoard // ✅ Export it
+
   };

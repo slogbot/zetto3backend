@@ -11,6 +11,7 @@ const { validateStructurePlacement } = require('../utils/validators/structurePla
 const manaService = require('../services/manaService'); // ⬅️ Add this
 const effectService = require('../services/effectService');
 const Card = require('../models/Card'); // ✅ This is likely missing
+const { validateStructure3XPlacement } = require('../utils/validators/structure3XValidator');
 
 
 exports.createGame = async (req, res) => {
@@ -466,7 +467,54 @@ exports.applyGlobalToOccupant = async (req, res) => {
     res.status(500).json({ message: 'Internal server error' });
   }
 };
+exports.placeStructure3X = async (req, res) => {
+  try {
+    const gameId = req.params.id;
+    const userId = req.user.userId;
+    const { cardId, cells } = req.body; // Expecting array of 3 cells
 
+    const game = await Game.findById(gameId);
+    if (!game) return res.status(404).json({ message: 'Game not found' });
+
+    const player = game.players.find(p => p.user.toString() === userId);
+    if (!player) return res.status(403).json({ message: 'Not your game' });
+
+    const cardIndex = player.hand.findIndex(c => c.toString() === cardId);
+    if (cardIndex === -1) return res.status(400).json({ message: 'Card not in hand' });
+
+    const cardData = await Card.findById(cardId);
+    if (!cardData || cardData.subType !== 'structure3x') {
+      return res.status(400).json({ message: 'Invalid 3x structure card' });
+    }
+
+   const validation = validateStructure3XPlacement(game, cells, userId);
+if (!validation.valid) {
+  console.warn(`❌ Invalid structure3X placement: ${validation.reason}`);
+  return res.status(400).json({ message: validation.reason });
+}
+
+    player.hand.splice(cardIndex, 1);
+
+    boardService.placeStructure3XOnBoard(game, cells, {
+      cardId: cardData._id,
+      name: cardData.name,
+      type: cardData.type,
+      subType: cardData.subType,
+      ownerId: userId,
+      canPlaceMinion: cardData.canPlaceMinion,
+      canPlaceSpawner: cardData.canPlaceSpawner,
+      sectorValue: cardData.sectorValue,
+      totemAura: cardData.totemAura ?? undefined
+    });
+
+    await game.save();
+    await emitGameState(gameId);
+    res.status(200).json({ message: 'Structure3X placed successfully' });
+  } catch (err) {
+    console.error('❌ Failed to place structure3X:', err);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
 
 
 

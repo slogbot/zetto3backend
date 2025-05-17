@@ -47,6 +47,12 @@ async function populateCards() {
     range: 2
   }
 },
+{
+  name: 'Wall Segment',
+  type: 'structure',
+  subType: 'structure3x', // ✅ New subtype
+  sectorValue: 3 // or whatever fits your balance
+},
 
       // ✅ Home card with canPlaceMinion true
       { name: 'Castle Core', type: 'home', subType: 'homebasic', canPlaceMinion: true }
