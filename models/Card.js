@@ -1,3 +1,4 @@
+// models/Card.js
 const mongoose = require('mongoose');
 
 const cardSchema = new mongoose.Schema({
@@ -21,43 +22,33 @@ const cardSchema = new mongoose.Schema({
       'direct to 2 cells',
       'homebasic',
       'direct to occupant',
-      'global effect', // ✅ NEW
+      'global effect',
       'structure3x',
     ],
     required: true,
   },
 
-  effect: { type: String }, // e.g. 'emptyEffect'
+  effect: { type: String },
 
   atk: {
     type: Number,
-    required: function () {
-      return this.type === 'minion';
-    }
+    required: function () { return this.type === 'minion'; }
   },
   def: {
     type: Number,
-    required: function () {
-      return this.type === 'minion';
-    }
+    required: function () { return this.type === 'minion'; }
   },
   mov: {
     type: Number,
-    required: function () {
-      return this.type === 'minion';
-    }
+    required: function () { return this.type === 'minion'; }
   },
   range: {
     type: Number,
-    required: function () {
-      return this.type === 'minion';
-    }
+    required: function () { return this.type === 'minion'; }
   },
   hp: {
     type: Number,
-    required: function () {
-      return this.type === 'minion';
-    }
+    required: function () { return this.type === 'minion'; }
   },
 
   sectorValue: {
@@ -67,11 +58,15 @@ const cardSchema = new mongoose.Schema({
     }
   },
 
-  // ✅ New optional flags for gameplay mechanics
+  manaCost: {
+    type: Number,
+    required: true,
+    default: 1
+  },
+
   canPlaceMinion: { type: Boolean, default: false },
   canPlaceStructure: { type: Boolean, default: false },
 
-  // ✅ Optional totem aura data (only for totem structures)
   totemAura: {
     effectId: { type: String },
     range: { type: Number }

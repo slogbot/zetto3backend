@@ -12,6 +12,7 @@ const manaService = require('../services/manaService'); // ⬅️ Add this
 const effectService = require('../services/effectService');
 const Card = require('../models/Card'); // ✅ This is likely missing
 const { validateStructure3XPlacement } = require('../utils/validators/structure3XValidator');
+const { spendManaIfPossible } = require('../utils/validators/manaValidator');
 
 
 exports.createGame = async (req, res) => {
@@ -197,17 +198,24 @@ exports.placeMinion = async (req, res) => {
     const cardIndex = player.hand.findIndex(c => c.toString() === cardId);
     if (cardIndex === -1) return res.status(400).json({ message: 'Card not found in hand' });
 
+    const cardData = await Card.findById(cardId);
+    if (!cardData) return res.status(404).json({ message: 'Card data not found' });
+
+    // ✅ Validate mana before continuing
+    const manaResult = spendManaIfPossible(player, cardData);
+    if (!manaResult.valid) {
+      return res.status(400).json({ message: manaResult.reason });
+    }
+
     const validation = validateMinionPlacement(game, cell.x, cell.y, userId);
     if (!validation.valid) {
       console.warn(`❌ Invalid minion placement: ${validation.reason}`);
       return res.status(400).json({ message: validation.reason });
-}
+    }
 
-    // Remove card from hand
-    const cardData = await require('../models/Card').findById(cardId);
+    // ✅ Remove card from hand after validation
     player.hand.splice(cardIndex, 1);
 
-    // Place card snapshot on board
     boardService.placeMinionOnBoard(game, cell.x, cell.y, {
       cardId: cardData._id,
       name: cardData.name,
@@ -221,19 +229,19 @@ exports.placeMinion = async (req, res) => {
       hp: cardData.hp,
       canPlaceMinion: cardData.canPlaceMinion,
       canPlaceStructure: cardData.canPlaceStructure,
-      sectorValue: cardData.sectorValue // ✅ Add this line
-
+      sectorValue: cardData.sectorValue
     });
 
     await game.save();
     await emitGameState(gameId);
-
     res.status(200).json({ message: 'Minion placed successfully' });
+
   } catch (err) {
     console.error('❌ Failed to place minion:', err);
     res.status(500).json({ message: 'Internal server error' });
   }
 };
+
 exports.placeStructure = async (req, res) => {
   try {
     const gameId = req.params.id;
@@ -246,49 +254,55 @@ exports.placeStructure = async (req, res) => {
     const player = game.players.find(p => p.user.toString() === userId);
     if (!player) return res.status(403).json({ message: 'You are not part of this game' });
 
-  const cardIndex = player.hand.findIndex(c => c.toString() === cardId);
-if (cardIndex === -1) return res.status(400).json({ message: 'Card not found in hand' });
+    const cardIndex = player.hand.findIndex(c => c.toString() === cardId);
+    if (cardIndex === -1) return res.status(400).json({ message: 'Card not found in hand' });
 
-const cardData = await require('../models/Card').findById(cardId);
+    const cardData = await require('../models/Card').findById(cardId);
+    if (!cardData) return res.status(404).json({ message: 'Card data not found' });
 
-// ✅ Only allow structurebasic for now
-if (cardData.type !== 'structure' || cardData.subType !== 'structurebasic') {
-  return res.status(400).json({ message: 'Invalid structure card' });
-}
+    // ✅ Only allow structurebasic for now
+    if (cardData.type !== 'structure' || cardData.subType !== 'structurebasic') {
+      return res.status(400).json({ message: 'Invalid structure card' });
+    }
 
-// ✅ Validate structure placement
-const validation = validateStructurePlacement(game, cell.x, cell.y, userId);
-if (!validation.valid) {
-  console.warn(`❌ Invalid structure placement: ${validation.reason}`);
-  return res.status(400).json({ message: validation.reason });
-}
+    // ✅ Validate mana first
+    const manaResult = spendManaIfPossible(player, cardData);
+    if (!manaResult.valid) {
+      return res.status(400).json({ message: manaResult.reason });
+    }
 
-// ✅ Remove card from hand
-player.hand.splice(cardIndex, 1);
+    // ✅ Validate structure placement
+    const validation = validateStructurePlacement(game, cell.x, cell.y, userId);
+    if (!validation.valid) {
+      console.warn(`❌ Invalid structure placement: ${validation.reason}`);
+      return res.status(400).json({ message: validation.reason });
+    }
 
+    // ✅ Remove card from hand
+    player.hand.splice(cardIndex, 1);
 
-  boardService.placeStructureOnBoard(game, cell.x, cell.y, {
-  cardId: cardData._id,
-  name: cardData.name,
-  type: cardData.type,
-  subType: cardData.subType,
-  ownerId: userId,
-  canPlaceMinion: cardData.canPlaceMinion,
-  canPlaceSpawner: cardData.canPlaceSpawner,
-  sectorValue: cardData.sectorValue,
-  totemAura: cardData.totemAura ?? undefined
-});
-
+    boardService.placeStructureOnBoard(game, cell.x, cell.y, {
+      cardId: cardData._id,
+      name: cardData.name,
+      type: cardData.type,
+      subType: cardData.subType,
+      ownerId: userId,
+      canPlaceMinion: cardData.canPlaceMinion,
+      canPlaceSpawner: cardData.canPlaceSpawner,
+      sectorValue: cardData.sectorValue,
+      totemAura: cardData.totemAura ?? undefined
+    });
 
     await game.save();
     await emitGameState(gameId);
-
     res.status(200).json({ message: 'Structure placed successfully' });
+
   } catch (err) {
     console.error('❌ Failed to place structure:', err);
     res.status(500).json({ message: 'Internal server error' });
   }
 };
+
 exports.moveMinion = async (req, res) => {
   try {
     const gameId = req.params.id;
@@ -399,16 +413,21 @@ exports.applySpellToOccupant = async (req, res) => {
       return res.status(400).json({ message: 'No occupant in target cell' });
     }
 
-    const occupant = targetCell.occupant;
+    // ✅ Mana check first
+    const manaResult = spendManaIfPossible(player, cardData);
+    if (!manaResult.valid) {
+      return res.status(400).json({ message: manaResult.reason });
+    }
 
     // ✅ Remove spell from hand
     player.hand.splice(cardIndex, 1);
 
     // ✅ Apply effect
-effectService.applyEffectById(cardData.effect, occupant, game, {
-  type: 'spell',
-  id: cardId
-});
+    const occupant = targetCell.occupant;
+    effectService.applyEffectById(cardData.effect, occupant, game, {
+      type: 'spell',
+      id: cardId
+    });
 
     await game.save();
     await emitGameState(gameId);
@@ -419,6 +438,7 @@ effectService.applyEffectById(cardData.effect, occupant, game, {
     res.status(500).json({ message: 'Internal server error' });
   }
 };
+
 exports.applyGlobalToOccupant = async (req, res) => {
   try {
     const { id: gameId } = req.params;
@@ -450,10 +470,16 @@ exports.applyGlobalToOccupant = async (req, res) => {
       return res.status(400).json({ message: 'Occupant owner not found' });
     }
 
-    // Remove card from hand
+    // ✅ Check for sufficient mana
+    const manaResult = spendManaIfPossible(player, cardData);
+    if (!manaResult.valid) {
+      return res.status(400).json({ message: manaResult.reason });
+    }
+
+    // ✅ Remove card from hand
     player.hand.splice(cardIndex, 1);
 
-    // Apply effect
+    // ✅ Apply effect to occupant's owner
     effectService.applyGlobalEffectToPlayer(cardData.effect, targetPlayer, game, {
       type: 'spell',
       id: cardId
@@ -467,6 +493,7 @@ exports.applyGlobalToOccupant = async (req, res) => {
     res.status(500).json({ message: 'Internal server error' });
   }
 };
+
 exports.placeStructure3X = async (req, res) => {
   try {
     const gameId = req.params.id;
@@ -487,14 +514,23 @@ exports.placeStructure3X = async (req, res) => {
       return res.status(400).json({ message: 'Invalid 3x structure card' });
     }
 
-   const validation = validateStructure3XPlacement(game, cells, userId);
-if (!validation.valid) {
-  console.warn(`❌ Invalid structure3X placement: ${validation.reason}`);
-  return res.status(400).json({ message: validation.reason });
-}
+    // ✅ Validate placement
+    const validation = validateStructure3XPlacement(game, cells, userId);
+    if (!validation.valid) {
+      console.warn(`❌ Invalid structure3X placement: ${validation.reason}`);
+      return res.status(400).json({ message: validation.reason });
+    }
 
+    // ✅ Check for sufficient mana
+    const manaResult = spendManaIfPossible(player, cardData);
+    if (!manaResult.valid) {
+      return res.status(400).json({ message: manaResult.reason });
+    }
+
+    // ✅ Remove card from hand
     player.hand.splice(cardIndex, 1);
 
+    // ✅ Place on board
     boardService.placeStructure3XOnBoard(game, cells, {
       cardId: cardData._id,
       name: cardData.name,
@@ -515,6 +551,7 @@ if (!validation.valid) {
     res.status(500).json({ message: 'Internal server error' });
   }
 };
+
 
 
 

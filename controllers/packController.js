@@ -24,14 +24,15 @@ exports.openPack = async (req, res) => {
           subType: card.subType,
           owner: userId,
 
-   // ✅ Carry over effect field for spells
+          // ✅ Carry over manaCost
+          manaCost: card.manaCost ?? 1,
+
           ...(card.type === 'spell' && {
             effect: card.effect ?? null
           }),
-            ...(card.type === 'structure' && {
-    totemAura: card.totemAura ?? undefined
-  }),
-
+          ...(card.type === 'structure' && {
+            totemAura: card.totemAura ?? undefined
+          }),
           ...(card.type === 'minion' && {
             atk: card.atk ?? 1,
             def: card.def ?? 1,
@@ -43,7 +44,7 @@ exports.openPack = async (req, res) => {
           canPlaceMinion: card.canPlaceMinion ?? false,
           canPlaceStructure: card.canPlaceStructure ?? false,
 
-          ...(sectorValue !== undefined && { sectorValue }) // ✅ Only include if valid
+          ...(sectorValue !== undefined && { sectorValue })
         });
 
         await newCard.save();
