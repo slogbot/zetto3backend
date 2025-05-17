@@ -52,3 +52,42 @@ exports.selectRandomHomeCard = async (req, res) => {
     res.status(500).json({ message: 'Server error' });
   }
 };
+exports.getOwnedCards = async (req, res) => {
+  try {
+    const user = await User.findById(req.user.userId).populate('ownedCards');
+    if (!user) return res.status(404).json({ message: 'User not found' });
+
+    const nonHomeCards = user.ownedCards.filter(card => card.type !== 'home');
+
+    res.status(200).json({ cards: nonHomeCards });
+  } catch (err) {
+    console.error('❌ Error getting owned cards:', err.message);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+exports.saveDeck = async (req, res) => {
+  try {
+    const userId = req.user.userId;
+    const { selectedCardIds } = req.body;
+
+    if (!Array.isArray(selectedCardIds) || selectedCardIds.length !== 20) {
+      return res.status(400).json({ message: 'Exactly 20 cards must be selected' });
+    }
+
+    const user = await User.findById(userId);
+    if (!user) return res.status(404).json({ message: 'User not found' });
+
+    const ownedCardIds = user.ownedCards.map(id => id.toString());
+    const invalid = selectedCardIds.find(id => !ownedCardIds.includes(id));
+    if (invalid) return res.status(400).json({ message: `Card ${invalid} not owned` });
+
+    user.deck = selectedCardIds;
+    await user.save();
+
+    res.status(200).json({ message: 'Deck saved successfully' });
+  } catch (err) {
+    console.error('❌ Error saving deck:', err.message);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
