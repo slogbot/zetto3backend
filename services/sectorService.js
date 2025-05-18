@@ -36,6 +36,10 @@ function calculateSectorControl(game) {
       controlMap[sectorKey] = null;
       continue;
     }
+// Remove players who contributed 0 total sectorValue
+for (const [ownerId, value] of tally.entries()) {
+  if (value === 0) tally.delete(ownerId);
+}
 
     let highest = -Infinity;
     let leaders = [];
