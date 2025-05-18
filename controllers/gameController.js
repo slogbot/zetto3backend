@@ -14,6 +14,7 @@ const Card = require('../models/Card'); // ✅ This is likely missing
 const { validateStructure3XPlacement } = require('../utils/validators/structure3XValidator');
 const { spendManaIfPossible } = require('../utils/validators/manaValidator');
 const gameService = require('../services/gameService');
+const { emitUpdatedHand } = require('../services/gameService');
 
 
 exports.createGame = async (req, res) => {
@@ -216,6 +217,7 @@ exports.placeMinion = async (req, res) => {
 
     // ✅ Remove card from hand after validation
     player.hand.splice(cardIndex, 1);
+await emitUpdatedHand(gameId, userId);
 
     boardService.placeMinionOnBoard(game, cell.x, cell.y, {
       cardId: cardData._id,
@@ -283,6 +285,7 @@ exports.placeStructure = async (req, res) => {
 
     // ✅ Remove card from hand
     player.hand.splice(cardIndex, 1);
+await emitUpdatedHand(gameId, userId);
 
     boardService.placeStructureOnBoard(game, cell.x, cell.y, {
       cardId: cardData._id,
@@ -438,6 +441,7 @@ exports.applySpellToOccupant = async (req, res) => {
 
     // ✅ Remove spell from hand
     player.hand.splice(cardIndex, 1);
+await emitUpdatedHand(gameId, userId);
 
     // ✅ Apply effect
     const occupant = targetCell.occupant;
@@ -495,6 +499,7 @@ exports.applyGlobalToOccupant = async (req, res) => {
 
     // ✅ Remove card from hand
     player.hand.splice(cardIndex, 1);
+await emitUpdatedHand(gameId, userId);
 
     // ✅ Apply effect to occupant's owner
     effectService.applyGlobalEffectToPlayer(cardData.effect, targetPlayer, game, {
@@ -546,6 +551,7 @@ exports.placeStructure3X = async (req, res) => {
 
     // ✅ Remove card from hand
     player.hand.splice(cardIndex, 1);
+await emitUpdatedHand(gameId, userId);
 
     // ✅ Place on board
     boardService.placeStructure3XOnBoard(game, cells, {

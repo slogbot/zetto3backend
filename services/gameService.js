@@ -47,7 +47,20 @@ async function emitGameState(gameId) {
   getIO().to(`game-${gameId}`).emit('game-state', payload);
 }
 
+// 📦 Emits updated hand to a specific user
+async function emitUpdatedHand(gameId, userId) {
+  const game = await Game.findById(gameId).populate('players.hand');
+  const player = game.players.find(p => p.user.toString() === userId);
+  if (!player) return;
+
+  getIO().to(`game-${gameId}`).emit('hand-updated', {
+    userId,
+    hand: player.hand
+  });
+}
+
 module.exports = {
   emitGameState,
-  refreshGameState // ✅ export this so other logic (like combat) can call it
+  refreshGameState,
+  emitUpdatedHand // ✅ new export
 };
