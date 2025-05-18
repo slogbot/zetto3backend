@@ -86,7 +86,8 @@ function generateEmptyBoard(width = 9, height = 9) {
       hp: minionData.hp,
       canPlaceMinion: minionData.canPlaceMinion ?? false,
       canPlaceStructure: minionData.canPlaceStructure ?? false,
-      sectorValue: minionData.sectorValue ?? 1
+      sectorValue: minionData.sectorValue ?? 1,
+image: minionData.image,
 
     };
     
@@ -110,7 +111,9 @@ function generateEmptyBoard(width = 9, height = 9) {
       canPlaceMinion: structureData.canPlaceMinion ?? false,
       canPlaceStructure: structureData.canPlaceSpawner ?? false,
       sectorValue: structureData.sectorValue ?? 1,
-      totemAura: structureData.totemAura ?? undefined
+      totemAura: structureData.totemAura ?? undefined,
+      image: structureData.image,
+
 
 
     };
@@ -139,7 +142,9 @@ function placeStructure3XOnBoard(game, cells, structureData) {
       canPlaceMinion: structureData.canPlaceMinion ?? false,
       canPlaceStructure: structureData.canPlaceSpawner ?? false,
       sectorValue: structureData.sectorValue ?? 1,
-      totemAura: structureData.totemAura ?? undefined
+      totemAura: structureData.totemAura ?? undefined,
+      image: structureData.image,
+
     };
 
     console.log(`[BoardService] 🧱 Structure3X block placed at (${x},${y})`);

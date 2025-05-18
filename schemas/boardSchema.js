@@ -16,6 +16,7 @@ const cellSchema = new mongoose.Schema({
     range: { type: Number },
     hp: { type: Number },
     sectorValue: { type: Number, default: 1 },
+image: { type: String },
 
     // ✅ Effect system with source tracking
     activeEffects: {

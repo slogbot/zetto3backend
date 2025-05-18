@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const dotenv = require('dotenv');
 const http = require('http');
+const path = require('path'); // ✅ ADD THIS
 const connectDB = require('./config/db');
 const socketManager = require('./sockets');
 
@@ -13,12 +14,14 @@ connectDB();
 app.use(cors());
 app.use(express.json());
 
-// Your API routes
+// ✅ Serve static images
+app.use('/public', express.static(path.join(__dirname, 'public')));
+
+// API routes
 app.use('/api/auth', require('./routes/authRoutes'));
 app.use('/api/packs', require('./routes/packRoutes'));
 app.use('/api/deck', require('./routes/deckRoutes'));
 app.use('/api/games', require('./routes/gameRoutes'));
-// add others later
 
 // Create HTTP server
 const server = http.createServer(app);

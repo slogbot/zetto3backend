@@ -4,6 +4,7 @@ const mongoose = require('mongoose');
 const cardSchema = new mongoose.Schema({
   name: { type: String, required: true },
   owner: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+image: { type: String }, // ✅ add this field
 
   type: {
     type: String,

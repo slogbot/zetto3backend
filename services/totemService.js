@@ -1,15 +1,21 @@
 const { applyEffectById } = require('./effectService');
 
-function getCellsInRange(game, centerX, centerY, range) {
-  const cellsInRange = [];
+function getAdjacentCells(game, centerX, centerY) {
   const board = game.board.grid;
+  const cellsInRange = [];
 
-  for (let y = 0; y < board.length; y++) {
-    for (let x = 0; x < board[0].length; x++) {
-      const distance = Math.abs(centerX - x) + Math.abs(centerY - y);
-      if (distance <= range) {
-        cellsInRange.push(board[y][x]);
-      }
+  const directions = [
+    [-1, -1], [0, -1], [1, -1],
+    [-1,  0],          [1,  0],
+    [-1,  1], [0,  1], [1,  1]
+  ];
+
+  for (const [dx, dy] of directions) {
+    const x = centerX + dx;
+    const y = centerY + dy;
+
+    if (y >= 0 && y < board.length && x >= 0 && x < board[0].length) {
+      cellsInRange.push(board[y][x]);
     }
   }
 
@@ -28,29 +34,26 @@ function applyTotemAuras(game) {
       if (
         !occupant ||
         !occupant.totemAura ||
-        typeof occupant.totemAura.effectId !== 'string' ||
-        typeof occupant.totemAura.range !== 'number'
+        typeof occupant.totemAura.effectId !== 'string'
       ) {
         continue;
       }
 
-      const { effectId, range } = occupant.totemAura;
+      const { effectId } = occupant.totemAura;
       const source = {
         type: 'totem',
         id: occupant.cardId
       };
 
-      console.log(`🌀 Totem found at (${x},${y}) applying '${effectId}' in range ${range}`);
-      const affectedCells = getCellsInRange(game, x, y, range);
+      console.log(`🌀 Totem found at (${x},${y}) applying '${effectId}' to adjacent cells`);
+      const affectedCells = getAdjacentCells(game, x, y);
 
       for (const targetCell of affectedCells) {
-        // ⛔ Skip applying to itself
-        if (targetCell.x === x && targetCell.y === y) continue;
-
         const target = targetCell.occupant;
+
         if (!target || typeof target.name !== 'string') continue;
 
-        console.log(`🔁 Attempting to apply '${effectId}' from totem at (${x},${y}) to ${target.name} at (${targetCell.x},${targetCell.y})`);
+        console.log(`🔁 Applying '${effectId}' from (${x},${y}) to ${target.name} at (${targetCell.x},${targetCell.y})`);
         applyEffectById(effectId, target, game, source);
       }
     }
@@ -59,8 +62,7 @@ function applyTotemAuras(game) {
   console.log(`✅ Totem aura pass complete.`);
 }
 
-
 module.exports = {
-  getCellsInRange,
+  getAdjacentCells,
   applyTotemAuras
 };
