@@ -151,4 +151,62 @@ exports.openStructureSpellPack = async (req, res) => {
     res.status(500).json({ message: 'Server error' });
   }
 };
+exports.openTieredMinionPack = async (req, res) => {
+  try {
+    const userId = req.user.userId;
+
+    // 5 low-cost minions (<10)
+    const lowCostMinions = await Card.aggregate([
+      { $match: { type: 'minion', manaCost: { $lt: 10 } } },
+      { $sample: { size: 5 } }
+    ]);
+
+    // 5 high-cost minions (>=10)
+    const highCostMinions = await Card.aggregate([
+      { $match: { type: 'minion', manaCost: { $gte: 10 } } },
+      { $sample: { size: 5 } }
+    ]);
+
+    const baseCards = [...lowCostMinions, ...highCostMinions];
+
+    const newCards = await Promise.all(
+      baseCards.map(async (card) => {
+        const sectorValue = card.sectorValue ?? 1;
+
+        const newCard = new Card({
+          name: card.name,
+          type: card.type,
+          subType: card.subType,
+          owner: userId,
+          manaCost: card.manaCost ?? 1,
+          image: card.image,
+
+          ...(card.type === 'minion' && {
+            atk: card.atk ?? 1,
+            def: card.def ?? 1,
+            mov: card.mov ?? 1,
+            range: card.range ?? 1,
+            hp: card.hp ?? 1
+          }),
+
+          canPlaceMinion: card.canPlaceMinion ?? false,
+          canPlaceStructure: card.canPlaceStructure ?? false,
+          sectorValue
+        });
+
+        await newCard.save();
+        return newCard;
+      })
+    );
+
+    const user = await User.findById(userId);
+    newCards.forEach(card => user.ownedCards.push(card._id));
+    await user.save();
+
+    res.status(200).json({ message: 'Tiered Minion Pack opened', cards: newCards });
+  } catch (error) {
+    console.error('❌ Error opening tiered minion pack:', error.message);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
 

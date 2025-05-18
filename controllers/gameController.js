@@ -13,6 +13,7 @@ const effectService = require('../services/effectService');
 const Card = require('../models/Card'); // ✅ This is likely missing
 const { validateStructure3XPlacement } = require('../utils/validators/structure3XValidator');
 const { spendManaIfPossible } = require('../utils/validators/manaValidator');
+const gameService = require('../services/gameService');
 
 
 exports.createGame = async (req, res) => {
@@ -310,6 +311,7 @@ exports.placeStructure = async (req, res) => {
   }
 };
 
+
 exports.moveMinion = async (req, res) => {
   try {
     const gameId = req.params.id;
@@ -322,7 +324,9 @@ exports.moveMinion = async (req, res) => {
     const game = await Game.findById(gameId);
     if (!game) return res.status(404).json({ message: 'Game not found' });
 
-    // ✅ Centralized movement validation
+    // ✅ Refresh before validating — this ensures proper zone logic or totem-dependent effects
+    await gameService.refreshGameState(game);
+
     const result = movementValidator.validateMovement(game, from, to, userId);
     if (!result.valid) {
       console.warn('❌ Invalid move:', result.reason);
@@ -336,8 +340,10 @@ exports.moveMinion = async (req, res) => {
     sourceCell.occupant = null;
 
     console.log(`✅ Moved unit to (${to.x},${to.y})`);
+
     await game.save();
-    await emitGameState(gameId);
+    await gameService.emitGameState(gameId);
+
     res.status(200).json({ message: 'Minion moved successfully' });
 
   } catch (err) {
@@ -345,6 +351,7 @@ exports.moveMinion = async (req, res) => {
     res.status(500).json({ message: 'Internal server error' });
   }
 };
+
 exports.attackMinion = async (req, res) => {
   try {
     const gameId = req.params.id;
@@ -353,6 +360,9 @@ exports.attackMinion = async (req, res) => {
 
     const game = await Game.findById(gameId);
     if (!game) return res.status(404).json({ message: 'Game not found' });
+
+    // ✅ Refresh game state before combat
+    await gameService.refreshGameState(game);
 
     const attackerCell = game.board.grid[from.y]?.[from.x];
     const defenderCell = game.board.grid[to.y]?.[to.x];
@@ -372,28 +382,28 @@ exports.attackMinion = async (req, res) => {
       return res.status(403).json({ message: 'You do not control this unit' });
     }
 
-   const result = resolveCombat(attacker, defender);
+    const result = resolveCombat(attacker, defender);
 
-if (!result.valid) {
-  return res.status(400).json({ message: result.reason });
-}
+    if (!result.valid) {
+      return res.status(400).json({ message: result.reason });
+    }
 
-// Apply HP changes
-if (attacker) attacker.hp = result.attackerHp;
-if (defender) defender.hp = result.defenderHp;
+    // Apply HP changes
+    if (attacker) attacker.hp = result.attackerHp;
+    if (defender) defender.hp = result.defenderHp;
 
-// Remove dead units
-if (result.attackerHp <= 0) attackerCell.occupant = null;
-if (result.defenderHp <= 0) defenderCell.occupant = null;
+    // Remove dead units
+    if (result.attackerHp <= 0) attackerCell.occupant = null;
+    if (result.defenderHp <= 0) defenderCell.occupant = null;
 
-await game.save();
-await emitGameState(gameId);
+    await game.save();
+    await gameService.emitGameState(gameId);
 
-res.status(200).json({ message: 'Combat resolved', result });
-
+    res.status(200).json({ message: 'Combat resolved', result });
 
   } catch (err) {
     console.error('❌ Combat error:', err);
+    res.status(500).json({ message: 'Internal server error' });
   }
 };
 
