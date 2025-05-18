@@ -81,8 +81,16 @@ exports.openStructureSpellPack = async (req, res) => {
       { $sample: { size: 5 } }
     ]);
 
-    const baseCards = [...structureCards, ...spellCards];
+    // Sample 1 home card
+    const [homeCard] = await Card.aggregate([
+      { $match: { type: 'home' } },
+      { $sample: { size: 1 } }
+    ]);
 
+    // Combine all sampled cards
+    const baseCards = [...structureCards, ...spellCards, homeCard];
+
+    // Duplicate cards for the user
     const newCards = await Promise.all(
       baseCards.map(async (card) => {
         const sectorValue =
@@ -127,7 +135,7 @@ exports.openStructureSpellPack = async (req, res) => {
     newCards.forEach(card => user.ownedCards.push(card._id));
     await user.save();
 
-    res.status(200).json({ message: 'Structure/Spell Pack opened', cards: newCards });
+    res.status(200).json({ message: 'Structure/Spell/Home Pack opened', cards: newCards });
   } catch (error) {
     console.error('❌ Error opening structure/spell pack:', error.message);
     res.status(500).json({ message: 'Server error' });
