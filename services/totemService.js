@@ -53,7 +53,6 @@ function applyTotemAuras(game) {
 
         if (!target || typeof target.name !== 'string') continue;
 
-        console.log(`🔁 Applying '${effectId}' from (${x},${y}) to ${target.name} at (${targetCell.x},${targetCell.y})`);
         applyEffectById(effectId, target, game, source);
       }
     }
