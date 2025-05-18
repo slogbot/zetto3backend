@@ -69,28 +69,32 @@ exports.openStructureSpellPack = async (req, res) => {
   try {
     const userId = req.user.userId;
 
-    // Sample 5 structures
-    const structureCards = await Card.aggregate([
-      { $match: { type: 'structure' } },
-      { $sample: { size: 5 } }
+    // ✅ 1 guaranteed structure3x (e.g. Wall Segment)
+    const [structure3xCard] = await Card.aggregate([
+      { $match: { type: 'structure', subType: 'structure3x' } },
+      { $sample: { size: 1 } }
     ]);
 
-    // Sample 5 spells
+    // ✅ 4 more structures, excluding structure3x
+    const structureCards = await Card.aggregate([
+      { $match: { type: 'structure', subType: { $ne: 'structure3x' } } },
+      { $sample: { size: 4 } }
+    ]);
+
+    // ✅ 5 spells
     const spellCards = await Card.aggregate([
       { $match: { type: 'spell' } },
       { $sample: { size: 5 } }
     ]);
 
-    // Sample 1 home card
+    // ✅ 1 home card
     const [homeCard] = await Card.aggregate([
       { $match: { type: 'home' } },
       { $sample: { size: 1 } }
     ]);
 
-    // Combine all sampled cards
-    const baseCards = [...structureCards, ...spellCards, homeCard];
+    const baseCards = [structure3xCard, ...structureCards, ...spellCards, homeCard];
 
-    // Duplicate cards for the user
     const newCards = await Promise.all(
       baseCards.map(async (card) => {
         const sectorValue =
@@ -141,3 +145,4 @@ exports.openStructureSpellPack = async (req, res) => {
     res.status(500).json({ message: 'Server error' });
   }
 };
+
