@@ -294,6 +294,9 @@ exports.placeStructure = async (req, res) => {
       sectorValue: cardData.sectorValue,
       totemAura: cardData.totemAura ?? undefined,
       image: cardData.image,
+      def: cardData.def ?? 1,
+      hp: cardData.hp ?? 1,
+
 
     });
 
@@ -544,7 +547,9 @@ exports.placeStructure3X = async (req, res) => {
       canPlaceMinion: cardData.canPlaceMinion,
       canPlaceSpawner: cardData.canPlaceSpawner,
       sectorValue: cardData.sectorValue,
-      totemAura: cardData.totemAura ?? undefined
+      totemAura: cardData.totemAura ?? undefined,
+      def: cardData.def ?? 1,
+      hp: cardData.hp ?? 1
     });
 
     await game.save();

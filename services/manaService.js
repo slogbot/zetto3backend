@@ -7,7 +7,7 @@ function applyManaGains(game) {
   const controlCounts = {};
   for (const ownerId of Object.values(sectorControl)) {
     if (!ownerId) continue;
-    controlCounts[ownerId] = (controlCounts[ownerId] || 0) + 1;
+    controlCounts[ownerId] = (controlCounts[ownerId] || 0) + 2;
   }
 
   const activeId = game.activePlayer?.toString();

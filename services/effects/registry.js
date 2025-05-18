@@ -14,6 +14,8 @@ const boostDef4 = require('./effects/boostDef4Effect');
 const boostDef5 = require('./effects/boostDef5Effect');
 const boostRng1 = require('./effects/boostRng1Effect');
 const boostMov1 = require('./effects/boostMov1Effect');
+const setMov1 = require('./effects/setMov1Effect');
+const setRng1 = require('./effects/setRng1Effect');
 
 
 const effectRegistry = {
@@ -24,9 +26,11 @@ const effectRegistry = {
 
   boostDef1,boostDef2,boostDef3,boostDef4,boostDef5,
 
-  boostRng1,boostMov1
+  boostRng1,boostMov1,
 
-  
+  setMov1, setRng1
+
+
 };
 
 module.exports = effectRegistry;

@@ -30,24 +30,26 @@ async function populateCards() {
 
 // Structures ----------------------------------------------------
 
-  //Tombstones
-{ name: 'Tombstone', type: 'structure', subType: 'structurebasic', sectorValue: 1, manaCost: 2,image: 'Tombstone.png'},
+ // Tombstones
+{ name: 'Tombstone', type: 'structure', subType: 'structurebasic', sectorValue: 1, manaCost: 2, def: 4, hp: 1, image: 'Tombstone.png' },
 
-//Wall
-{ name: 'Wall Segment', type: 'structure', subType: 'structure3x', sectorValue: 1, manaCost: 3 },
+// Wall
+{ name: 'Wall Segment', type: 'structure', subType: 'structure3x', sectorValue: 0, manaCost: 3, def: 3, hp: 1 },
 
-//Totems
+// Castle Core (home, no changes as it's not a structure)
 { name: 'Castle Core', type: 'home', subType: 'homebasic', canPlaceMinion: true, manaCost: 0 },
-{ name: 'Totem of Sparks', type: 'structure', subType: 'structurebasic', sectorValue: 0, manaCost: 1, totemAura: { effectId: 'boostAtk1', range: 1 },image: 'Totem.png'},
-{ name: 'Totem of Claws', type: 'structure', subType: 'structurebasic', sectorValue: 0, manaCost: 2, totemAura: { effectId: 'boostAtk2', range: 1 },image: 'Totem.png' },
-{ name: 'Totem of Fury', type: 'structure', subType: 'structurebasic', sectorValue: 0, manaCost: 3, totemAura: { effectId: 'boostAtk3', range: 1 } ,image: 'Totem.png'},
-{ name: 'Totem of Scales', type: 'structure', subType: 'structurebasic', sectorValue: 0, manaCost: 1, totemAura: { effectId: 'boostDef1', range: 1 } ,image: 'Totem.png'},
-{ name: 'Totem of Iron', type: 'structure', subType: 'structurebasic', sectorValue: 0, manaCost: 2, totemAura: { effectId: 'boostDef2', range: 1 } ,image: 'Totem.png'},
-{ name: 'Totem of Walls', type: 'structure', subType: 'structurebasic', sectorValue: 0, manaCost: 3, totemAura: { effectId: 'boostDef3', range: 1 } ,image: 'Totem.png'},
-{ name: 'Totem of Wind', type: 'structure', subType: 'structurebasic', sectorValue: 0, manaCost: 3, totemAura: { effectId: 'boostMov1', range: 1 } ,image: 'Totem.png'},
-{ name: 'Totem of Sight', type: 'structure', subType: 'structurebasic', sectorValue: 0, manaCost: 3, totemAura: { effectId: 'boostRng1', range: 1 } ,image: 'Totem.png'},
-{ name: 'Totem of Mud', type: 'structure', subType: 'structurebasic', sectorValue: 0, manaCost: 2, totemAura: { effectId: 'setMov1', range: 1 } ,image: 'Totem.png'},
-{ name: 'Totem of Blur', type: 'structure', subType: 'structurebasic', sectorValue: 0, manaCost: 2, totemAura: { effectId: 'setRng1', range: 1 } ,image: 'Totem.png'},
+
+// Totems
+{ name: 'Totem of Sparks', type: 'structure', subType: 'structurebasic', sectorValue: 0, manaCost: 1, def: 1, hp: 1, totemAura: { effectId: 'boostAtk1', range: 1 }, image: 'Totem.png' },
+{ name: 'Totem of Claws', type: 'structure', subType: 'structurebasic', sectorValue: 0, manaCost: 2, def: 1, hp: 1, totemAura: { effectId: 'boostAtk2', range: 1 }, image: 'Totem.png' },
+{ name: 'Totem of Fury', type: 'structure', subType: 'structurebasic', sectorValue: 0, manaCost: 3, def: 1, hp: 1, totemAura: { effectId: 'boostAtk3', range: 1 }, image: 'Totem.png' },
+{ name: 'Totem of Scales', type: 'structure', subType: 'structurebasic', sectorValue: 0, manaCost: 1, def: 1, hp: 1, totemAura: { effectId: 'boostDef1', range: 1 }, image: 'Totem.png' },
+{ name: 'Totem of Iron', type: 'structure', subType: 'structurebasic', sectorValue: 0, manaCost: 2, def: 1, hp: 1, totemAura: { effectId: 'boostDef2', range: 1 }, image: 'Totem.png' },
+{ name: 'Totem of Walls', type: 'structure', subType: 'structurebasic', sectorValue: 0, manaCost: 3, def: 1, hp: 1, totemAura: { effectId: 'boostDef3', range: 1 }, image: 'Totem.png' },
+{ name: 'Totem of Wind', type: 'structure', subType: 'structurebasic', sectorValue: 0, manaCost: 3, def: 1, hp: 1, totemAura: { effectId: 'boostMov1', range: 1 }, image: 'Totem.png' },
+{ name: 'Totem of Sight', type: 'structure', subType: 'structurebasic', sectorValue: 0, manaCost: 3, def: 1, hp: 1, totemAura: { effectId: 'boostRng1', range: 1 }, image: 'Totem.png' },
+{ name: 'Totem of Mud', type: 'structure', subType: 'structurebasic', sectorValue: 0, manaCost: 2, def: 1, hp: 1, totemAura: { effectId: 'setMov1', range: 1 }, image: 'Totem.png' },
+{ name: 'Totem of Blur', type: 'structure', subType: 'structurebasic', sectorValue: 0, manaCost: 2, def: 1, hp: 1, totemAura: { effectId: 'setRng1', range: 1 }, image: 'Totem.png' },
 
 
   {

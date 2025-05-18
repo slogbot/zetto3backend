@@ -32,8 +32,11 @@ exports.openPack = async (req, res) => {
             effect: card.effect ?? null
           }),
           ...(card.type === 'structure' && {
-            totemAura: card.totemAura ?? undefined
-          }),
+  def: card.def ?? 1,
+  hp: card.hp ?? 1,
+  totemAura: card.totemAura ?? undefined
+}),
+
           ...(card.type === 'minion' && {
             atk: card.atk ?? 1,
             def: card.def ?? 1,
@@ -113,9 +116,12 @@ exports.openStructureSpellPack = async (req, res) => {
           ...(card.type === 'spell' && {
             effect: card.effect ?? null
           }),
-          ...(card.type === 'structure' && {
-            totemAura: card.totemAura ?? undefined
-          }),
+      ...(card.type === 'structure' && {
+  def: card.def ?? 1,
+  hp: card.hp ?? 1,
+  totemAura: card.totemAura ?? undefined
+}),
+
           ...(card.type === 'minion' && {
             atk: card.atk ?? 1,
             def: card.def ?? 1,

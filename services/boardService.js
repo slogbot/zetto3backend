@@ -113,6 +113,9 @@ image: minionData.image,
       sectorValue: structureData.sectorValue ?? 1,
       totemAura: structureData.totemAura ?? undefined,
       image: structureData.image,
+      def: structureData.def ?? 1,
+      hp: structureData.hp ?? 1,
+
 
 
 
@@ -144,6 +147,8 @@ function placeStructure3XOnBoard(game, cells, structureData) {
       sectorValue: structureData.sectorValue ?? 1,
       totemAura: structureData.totemAura ?? undefined,
       image: structureData.image,
+      def: structureData.def ?? 1,
+      hp: structureData.hp ?? 1,
 
     };
 
