@@ -8,7 +8,7 @@ module.exports = {
     occupant.atk += 5;
     occupant.activeEffects.push({
       name: 'boostAtk5',
-      duration: 3,
+      duration: 1,
       appliedAt: game.turnCount,
       source
     });

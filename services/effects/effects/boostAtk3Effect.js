@@ -8,7 +8,7 @@ module.exports = {
     occupant.atk += 3;
     occupant.activeEffects.push({
       name: 'boostAtk3',
-      duration: 3,
+      duration: 1,
       appliedAt: game.turnCount,
       source // ✅ Track source (spell or totem)
     });

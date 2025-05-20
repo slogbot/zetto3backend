@@ -8,7 +8,7 @@ module.exports = {
     occupant.def += 2;
     occupant.activeEffects.push({
       name: 'boostDef2',
-      duration: 6,
+      duration: 2,
       appliedAt: game.turnCount,
       source
     });

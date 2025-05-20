@@ -8,7 +8,7 @@ module.exports = {
     occupant.mov += 1;
     occupant.activeEffects.push({
       name: 'boostMov1',
-      duration: 3,
+      duration: 1,
       appliedAt: game.turnCount,
       source
     });

@@ -8,7 +8,7 @@ module.exports = {
     occupant.range += 1;
     occupant.activeEffects.push({
       name: 'boostRng1',
-      duration: 3,
+      duration: 1,
       appliedAt: game.turnCount,
       source
     });
