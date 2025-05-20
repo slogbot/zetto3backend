@@ -17,11 +17,16 @@ function rollDie() {
     };
   }
   
-  function determineCombatResult(totals) {
-    if (totals.attackerTotal > totals.defenderTotal) return 'defender';
-    if (totals.attackerTotal < totals.defenderTotal) return 'attacker';
-    return 'both';
+function determineCombatResult(totals, attacker, defender) {
+  const defenderIsStructure = defender.type === 'structure';
+
+  if (totals.attackerTotal > totals.defenderTotal) return 'defender';
+  if (totals.attackerTotal < totals.defenderTotal) {
+    return defenderIsStructure ? 'none' : 'attacker'; // ⛔️ Don't let structure kill attacker
   }
+  return 'both';
+}
+
   
   function applyCombatDamage(attacker, defender, loser, totals) {
     let attackerHp = attacker.hp ?? 1;
@@ -59,7 +64,7 @@ function rollDie() {
     }
   
     const totals = calculateTotals(attacker, defender);
-    const loser = determineCombatResult(totals);
+const loser = determineCombatResult(totals, attacker, defender);
     const outcome = applyCombatDamage(attacker, defender, loser, totals);
   
     const winner =
