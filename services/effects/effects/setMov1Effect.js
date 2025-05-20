@@ -15,7 +15,7 @@ module.exports = {
     occupant.activeEffects.push({
       name: 'setMov1',
       duration: 1000,
-      appliedAt: game.phaseCount,
+      appliedAt: game.turnCount,
       source
     });
   },

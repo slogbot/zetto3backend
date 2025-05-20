@@ -9,7 +9,7 @@ module.exports = {
     occupant.activeEffects.push({
       name: 'boostDef4',
       duration: 6,
-      appliedAt: game.phaseCount,
+      appliedAt: game.turnCount,
       source
     });
   },

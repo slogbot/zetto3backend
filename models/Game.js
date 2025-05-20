@@ -14,15 +14,14 @@ const playerSchema = new mongoose.Schema({
 
 // 🧠 New interaction schema
 
+const gameSchema = new mongoose.Schema({
+  players: { type: [playerSchema], default: [] },
+  board: boardSchema,
+  activePlayer: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
+  turnCount: { type: Number, default: 0 },
+  createdAt: { type: Date, default: Date.now }
+});
 
-  const gameSchema = new mongoose.Schema({
-    players: { type: [playerSchema], default: [] },
-    board: boardSchema,
-    activePlayer: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
-    phase: { type: String, enum: ['placement', 'movement', 'combat'], default: 'placement' },
-    phaseCount: { type: Number, default: 0 },
-    createdAt: { type: Date, default: Date.now }
-  });
 
 const Game = mongoose.model('Game', gameSchema);
 

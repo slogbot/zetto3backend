@@ -136,30 +136,6 @@ exports.drawCard = async (req, res) => {
     res.status(500).json({ message: err.message || 'Failed to draw card' });
   }
 };
-const PHASES = ['placement', 'movement', 'combat'];
-
-exports.nextPhase = async (req, res) => {
-  try {
-    const gameId = req.params.id;
-    const game = await Game.findById(gameId);
-    if (!game) return res.status(404).json({ message: 'Game not found' });
-
-    const currentIndex = PHASES.indexOf(game.phase);
-    const nextPhase = PHASES[(currentIndex + 1) % PHASES.length];
-
-    game.phase = nextPhase;
-    game.phaseCount++;
-    effectService.removeExpiredEffects(game);
-
-    await game.save();
-    await emitGameState(gameId);
-    res.status(200).json({ message: `Phase changed to ${nextPhase}` });
-
-  } catch (err) {
-    console.error('❌ Failed to change phase:', err);
-    res.status(500).json({ message: 'Internal server error' });
-  }
-};
 
 exports.swapTurn = async (req, res) => {
   try {
@@ -173,12 +149,19 @@ exports.swapTurn = async (req, res) => {
     if (!nextPlayer) return res.status(400).json({ message: 'No other player to swap to' });
 
     game.activePlayer = nextPlayer.user;
-    manaService.applyManaGains(game); // ⬅️ Just before game.save()
+    game.turnCount = (game.turnCount ?? 0) + 1;
+
+    // ✅ Remove expired effects BEFORE saving
+    effectService.removeExpiredEffects(game);
+
+    // ✅ Apply mana gains AFTER effects are removed
+    manaService.applyManaGains(game);
 
     await game.save();
-
     await emitGameState(gameId);
+
     res.status(200).json({ message: `Turn swapped to ${nextPlayer.user}` });
+
   } catch (err) {
     console.error('❌ Failed to swap turn:', err);
     res.status(500).json({ message: 'Internal server error' });
@@ -313,7 +296,6 @@ await emitUpdatedHand(gameId, userId);
     res.status(500).json({ message: 'Internal server error' });
   }
 };
-
 
 exports.moveMinion = async (req, res) => {
   try {

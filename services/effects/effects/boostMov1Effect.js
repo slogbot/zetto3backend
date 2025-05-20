@@ -9,7 +9,7 @@ module.exports = {
     occupant.activeEffects.push({
       name: 'boostMov1',
       duration: 3,
-      appliedAt: game.phaseCount,
+      appliedAt: game.turnCount,
       source
     });
   },

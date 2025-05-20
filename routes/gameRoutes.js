@@ -8,7 +8,6 @@ router.get('/', gameController.getAvailableGames);
 router.post('/', authenticateToken, gameController.createGame);
 router.post('/join/:id', authenticateToken, gameController.joinGame);
 router.post('/draw/:gameId', authenticateToken, gameController.drawCard);
-router.post('/:id/next-phase', authenticateToken, gameController.nextPhase);
 router.post('/:id/place-minion', authenticateToken, gameController.placeMinion);
 router.post('/:id/place-structure', authenticateToken, gameController.placeStructure);
 router.post('/:id/move-minion', authenticateToken, gameController.moveMinion);

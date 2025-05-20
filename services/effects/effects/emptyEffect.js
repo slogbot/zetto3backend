@@ -8,7 +8,7 @@ module.exports = {
     occupant.activeEffects.push({
       name: 'emptyEffect',
       duration: 3,
-      appliedAt: game.phaseCount,
+      appliedAt: game.turnCount,
       source // ✅ Track source
     });
   },

@@ -24,7 +24,7 @@ function applyEffectById(effectId, occupant, game, source) {
 
 function removeExpiredEffects(game) {
   const { grid } = game.board;
-  const { phaseCount } = game;
+  const { turnCount } = game;
 
   for (let row of grid) {
     for (let cell of row) {
@@ -32,13 +32,13 @@ function removeExpiredEffects(game) {
       if (!occupant || !occupant.activeEffects?.length) continue;
 
       occupant.activeEffects = occupant.activeEffects.filter(effect => {
-        const isExpired = (phaseCount >= (effect.appliedAt + effect.duration));
+        const isExpired = (turnCount >= (effect.appliedAt + effect.duration));
 
         if (isExpired) {
           const handler = effects[effect.name];
           if (handler?.remove) {
             console.log(`🧹 Removing expired effect '${effect.name}' from ${occupant.name}`);
-            handler.remove(occupant, game, effect.source); // ✅ pass source
+            handler.remove(occupant, game, effect.source);
           } else {
             console.warn(`⚠️ No removal handler for effect: ${effect.name}`);
           }
@@ -49,6 +49,7 @@ function removeExpiredEffects(game) {
     }
   }
 }
+
 function applyGlobalEffectToPlayer(effectId, player, game, source) {
   const effect = effects[effectId];
   if (!effect || typeof effect.applyToPlayer !== 'function') {
@@ -62,6 +63,5 @@ function applyGlobalEffectToPlayer(effectId, player, game, source) {
 module.exports = {
   applyEffectById,
   removeExpiredEffects,
-    applyGlobalEffectToPlayer // ✅ Add this
-
+  applyGlobalEffectToPlayer
 };

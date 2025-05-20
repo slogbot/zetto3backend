@@ -28,8 +28,7 @@ async function emitGameState(gameId) {
 
   const payload = {
     board: game.board,
-    phase: game.phase,
-    phaseCount: game.phaseCount,
+    turnCount: game.turnCount,
     players: game.players.map(p => ({
       userId: p.user._id.toString(),
       username: p.user.username || 'Unknown',
@@ -62,5 +61,6 @@ async function emitUpdatedHand(gameId, userId) {
 module.exports = {
   emitGameState,
   refreshGameState,
-  emitUpdatedHand // ✅ new export
+  emitUpdatedHand
 };
+
