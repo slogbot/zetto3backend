@@ -12,9 +12,32 @@ module.exports = {
       }
     });
 
-    // 🔌 Connect to Redis
-    const pubClient = createClient({ url: process.env.REDIS_URL });
+    // 🔌 Connect to Upstash Redis
+    const pubClient = createClient({
+      url: process.env.REDIS_URL,
+      socket: {
+        reconnectStrategy: retries => Math.min(retries * 50, 1000) // Optional: retry strategy
+      }
+    });
+
     const subClient = pubClient.duplicate();
+
+    // ✅ Prevent calling unsupported `CLIENT SETINFO` on Upstash
+    pubClient.on('error', (err) => {
+      if (err.message.includes('CLIENT SETINFO')) {
+        console.warn('⚠️ Ignored CLIENT SETINFO error (Upstash doesn’t support it)');
+      } else {
+        console.error('Redis pubClient error:', err);
+      }
+    });
+
+    subClient.on('error', (err) => {
+      if (err.message.includes('CLIENT SETINFO')) {
+        console.warn('⚠️ Ignored CLIENT SETINFO error (Upstash doesn’t support it)');
+      } else {
+        console.error('Redis subClient error:', err);
+      }
+    });
 
     await pubClient.connect();
     await subClient.connect();
