@@ -33,19 +33,19 @@ function determineCombatResult(totals, attacker, defender) {
 
   const damage = Math.abs(totals.attackerTotal - totals.defenderTotal);
 
-  if (loser === 'attacker') {
-    attackerHp -= damage;
-  } else if (loser === 'defender') {
-    defenderHp -= damage;
-  } else if (loser === 'both') {
-    attackerHp -= damage;
-    defenderHp -= damage;
-  }
-
-  console.log(`🎲 Attacker: ATK ${attacker.atk ?? 0} + Roll ${totals.attackerRoll} = ${totals.attackerTotal}`);
-  console.log(`🛡️ Defender: DEF ${defender.def ?? 0} + Roll ${totals.defenderRoll} = ${totals.defenderTotal}`);
-  console.log(`💥 Damage dealt to ${loser}: ${damage}`);
-  console.log(`❤️ Attacker HP: ${attackerHp} | Defender HP: ${defenderHp}`);
+ if (loser === 'attacker') {
+  attackerHp -= damage;
+  console.log(`💥 Damage dealt to attacker: ${damage}`);
+} else if (loser === 'defender') {
+  defenderHp -= damage;
+  console.log(`💥 Damage dealt to defender: ${damage}`);
+} else if (loser === 'both') {
+  attackerHp -= damage;
+  defenderHp -= damage;
+  console.log(`💥 Damage dealt to both: ${damage}`);
+} else {
+  console.log(`💤 No damage dealt (structure won)`);
+}
 
   return {
     attackerHp,
