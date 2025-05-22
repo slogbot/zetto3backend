@@ -14,28 +14,29 @@ function isValidStructureSpawner(occupant, userId) {
   return (
     occupant &&
     occupant.ownerId?.toString() === userId.toString() &&
-    occupant.canPlaceStructure === true
+    occupant.canPlaceStructure === true &&
+    typeof occupant.range === 'number' &&
+    occupant.hp > 0
   );
 }
 
-function hasAdjacentStructureSpawner(board, x, y, userId) {
-  const directions = [
-    { dx: 0, dy: -1 },
-    { dx: 0, dy: 1 },
-    { dx: -1, dy: 0 },
-    { dx: 1, dy: 0 },
-  ];
+function isWithinRange(x1, y1, x2, y2, range) {
+  return Math.abs(x1 - x2) + Math.abs(y1 - y2) <= range;
+}
 
-  for (const { dx, dy } of directions) {
-    const nx = x + dx;
-    const ny = y + dy;
+function hasSpawnerInRange(board, x, y, userId) {
+  for (let row = 0; row < board.length; row++) {
+    for (let col = 0; col < board[row].length; col++) {
+      const cell = board[row][col];
+      const occupant = cell?.occupant;
 
-    if (!isCellInBounds(board, nx, ny)) continue;
-
-    const neighbor = getCell(board, nx, ny);
-    if (isValidStructureSpawner(neighbor?.occupant, userId)) {
-      console.log(`🏗️ Found valid structure spawner at (${nx}, ${ny})`);
-      return true;
+      if (isValidStructureSpawner(occupant, userId)) {
+        const range = occupant.range;
+        if (isWithinRange(col, row, x, y, range)) {
+          console.log(`🏗️ Found valid spawner at (${col}, ${row}) with range ${range}`);
+          return true;
+        }
+      }
     }
   }
 
@@ -57,9 +58,9 @@ function validateStructurePlacement(game, x, y, userId) {
     return { valid: false, reason: 'Cell already occupied' };
   }
 
-  if (!hasAdjacentStructureSpawner(board, x, y, userId)) {
-    console.warn(`🚫 No adjacent friendly structure spawner found`);
-    return { valid: false, reason: 'Must place next to a friendly unit with canPlaceStructure' };
+  if (!hasSpawnerInRange(board, x, y, userId)) {
+    console.warn(`🚫 No friendly unit with canPlaceStructure in range`);
+    return { valid: false, reason: 'Must place within range of a friendly unit with canPlaceStructure' };
   }
 
   return { valid: true };
