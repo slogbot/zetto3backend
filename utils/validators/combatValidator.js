@@ -27,25 +27,37 @@ function determineCombatResult(totals, attacker, defender) {
   return 'both';
 }
 
-  function applyCombatDamage(attacker, defender, loser, totals) {
+function applyCombatDamage(attacker, defender, loser, totals) {
   let attackerHp = attacker.hp ?? 1;
   let defenderHp = defender.hp ?? 1;
 
   const damage = Math.abs(totals.attackerTotal - totals.defenderTotal);
 
- if (loser === 'attacker') {
-  attackerHp -= damage;
-  console.log(`💥 Damage dealt to attacker: ${damage}`);
-} else if (loser === 'defender') {
-  defenderHp -= damage;
-  console.log(`💥 Damage dealt to defender: ${damage}`);
-} else if (loser === 'both') {
-  attackerHp -= damage;
-  defenderHp -= damage;
-  console.log(`💥 Damage dealt to both: ${damage}`);
-} else {
-  console.log(`💤 No damage dealt (structure won)`);
-}
+  // 🛡️ Prevent accidental damage when no one should be hurt
+  if (loser === 'none') {
+    console.log(`💤 No damage dealt (structure won)`);
+    return {
+      attackerHp,
+      defenderHp,
+      attackerRoll: totals.attackerRoll,
+      defenderRoll: totals.defenderRoll,
+      loser
+    };
+  }
+
+  if (loser === 'attacker') {
+    attackerHp -= damage;
+    console.log(`💥 Damage dealt to attacker: ${damage}`);
+  } else if (loser === 'defender') {
+    defenderHp -= damage;
+    console.log(`💥 Damage dealt to defender: ${damage}`);
+  } else if (loser === 'both') {
+    attackerHp -= damage;
+    defenderHp -= damage;
+    console.log(`💥 Damage dealt to both: ${damage}`);
+  }
+
+  console.log(`❤️ Attacker HP: ${attackerHp} | Defender HP: ${defenderHp}`);
 
   return {
     attackerHp,
@@ -55,6 +67,7 @@ function determineCombatResult(totals, attacker, defender) {
     loser
   };
 }
+
 
   
   function resolveCombat(attacker, defender) {
