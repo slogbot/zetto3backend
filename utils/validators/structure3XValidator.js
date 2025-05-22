@@ -1,5 +1,3 @@
-// utils/structure3XValidator.js
-
 function getCell(board, x, y) {
   return board?.[y]?.[x] || null;
 }
@@ -16,27 +14,29 @@ function isValidStructureSpawner(occupant, userId) {
   return (
     occupant &&
     occupant.ownerId?.toString() === userId.toString() &&
-    occupant.canPlaceStructure === true
+    occupant.canPlaceStructure === true &&
+    typeof occupant.range === 'number' &&
+    occupant.hp > 0
   );
 }
 
-function hasAdjacentStructureSpawner(board, x, y, userId) {
-  const directions = [
-    { dx: 0, dy: -1 },
-    { dx: 0, dy: 1 },
-    { dx: -1, dy: 0 },
-    { dx: 1, dy: 0 },
-  ];
+function isWithinRange(x1, y1, x2, y2, range) {
+  return Math.abs(x1 - x2) + Math.abs(y1 - y2) <= range;
+}
 
-  for (const { dx, dy } of directions) {
-    const nx = x + dx;
-    const ny = y + dy;
+function hasSpawnerInRange(board, x, y, userId) {
+  for (let row = 0; row < board.length; row++) {
+    for (let col = 0; col < board[row].length; col++) {
+      const cell = board[row][col];
+      const occupant = cell?.occupant;
 
-    if (!isCellInBounds(board, nx, ny)) continue;
-
-    const neighbor = getCell(board, nx, ny);
-    if (isValidStructureSpawner(neighbor?.occupant, userId)) {
-      return true;
+      if (isValidStructureSpawner(occupant, userId)) {
+        const range = occupant.range;
+        if (isWithinRange(col, row, x, y, range)) {
+          console.log(`🏗️ Found valid spawner at (${col}, ${row}) with range ${range}`);
+          return true;
+        }
+      }
     }
   }
 
@@ -55,18 +55,18 @@ function validateStructure3XPlacement(game, cells, userId) {
 
   const [first, second, third] = cells;
 
-  // Validate first cell (like normal placement)
+  // 🔍 First cell validation (range-based)
   if (!isCellInBounds(board, first.x, first.y)) {
     return { valid: false, reason: 'First cell out of bounds' };
   }
   if (!isCellEmpty(getCell(board, first.x, first.y))) {
     return { valid: false, reason: 'First cell occupied' };
   }
-  if (!hasAdjacentStructureSpawner(board, first.x, first.y, userId)) {
-    return { valid: false, reason: 'First cell must be adjacent to structure spawner' };
+  if (!hasSpawnerInRange(board, first.x, first.y, userId)) {
+    return { valid: false, reason: 'No spawner with range covers first cell' };
   }
 
-  // Validate second cell
+  // 🧱 Second cell validation
   if (!isCellInBounds(board, second.x, second.y)) {
     return { valid: false, reason: 'Second cell out of bounds' };
   }
@@ -77,7 +77,7 @@ function validateStructure3XPlacement(game, cells, userId) {
     return { valid: false, reason: 'Second cell must be adjacent to first' };
   }
 
-  // Validate third cell
+  // 🧱 Third cell validation
   if (!isCellInBounds(board, third.x, third.y)) {
     return { valid: false, reason: 'Third cell out of bounds' };
   }
@@ -91,4 +91,6 @@ function validateStructure3XPlacement(game, cells, userId) {
   return { valid: true };
 }
 
-module.exports = { validateStructure3XPlacement };
+module.exports = {
+  validateStructure3XPlacement
+};
