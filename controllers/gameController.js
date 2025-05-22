@@ -341,7 +341,12 @@ exports.attackMinion = async (req, res) => {
   try {
     const gameId = req.params.id;
     const userId = req.user.userId;
-    const { from, to } = req.body;
+  const { from, to } = req.body;
+
+if (from.x === to.x && from.y === to.y) {
+  return res.status(400).json({ message: "A unit can't attack itself" });
+}
+
 
     const game = await Game.findById(gameId);
     if (!game) return res.status(404).json({ message: 'Game not found' });
